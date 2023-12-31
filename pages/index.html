@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://unpkg.com/fireworks-js@2.x/dist/index.umd.js"></script>
+    <link rel="stylesheet" href="../assets/main.css">
+</head>
+
+<body id="screen">
+    <div class="fireworks">
+    </div>
+
+    <div id="memories" >
+    </div>
+    
+    <script type="module">
+        let isPress = false
+        const container = document.querySelector('.fireworks')
+        const fireworks = new Fireworks.default(container, {
+            autoresize: true,
+            opacity: 1,
+            acceleration: 1,
+            friction: Math.random() * (0.96 - 0.88) + 0.88, // 0.88 to 0.96
+            gravity: 1.5,
+            particles: Math.floor(Math.random() * 100) + 50, // from 50 to 100:
+            traceLength: 3,
+            traceSpeed: 10,
+            explosion: 5,
+            intensity: 30,
+            flickering: 50,
+            lineStyle: 'round',
+            hue: {
+                min: 0,
+                max: 360
+            },
+            delay: {
+                min: 30,
+                max: 60
+            },
+            rocketsPoint: {
+                min: 50,
+                max: 50
+            },
+            lineWidth: {
+                explosion: {
+                    min: 1,
+                    max: 3
+                },
+                trace: {
+                    min: 1,
+                    max: 2
+                }
+            },
+            brightness: {
+                min: 50,
+                max: 80
+            },
+            decay: {
+                min: 0.015,
+                max: 0.03
+            },
+            mouse: {
+                click: false,
+                move: false,
+                max: 1
+            }
+        })
+
+        function enterFullScreen(element) {
+            if (element.requestFullscreen) {
+                element.requestFullscreen();
+            } else if (element.mozRequestFullScreen) {
+                element.mozRequestFullScreen();     // Firefox
+            } else if (element.webkitRequestFullscreen) {
+                element.webkitRequestFullscreen();  // Safari
+            } else if (element.msRequestFullscreen) {
+                element.msRequestFullscreen();      // IE/Edge
+            }
+        };
+
+        function exitFullscreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            }
+        };
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function round2() {
+            const listVideo = [
+                "../assets/videos/final1.mp4",
+                "../assets/videos/final2.mp4",
+                "../assets/videos/final3.mp4"
+            ]
+
+            let audio2 = new Audio(listAudio[Math.floor(Math.random() * 2) + 1]) // 1 or 2
+            audio2.play()
+
+            // Remove audio from list
+            listAudio.splice(listAudio.indexOf(audio2.src), 1)
+
+            audio2.onended = function() {
+                let audio3 = new Audio(listAudio[Math.floor(Math.random() * 2) + 1]) // 1 or 2
+                audio3.play()
+            }; 
+
+            // Show memories
+            const memories = document.getElementById('memories')
+            memories.classList.remove('d-none')
+
+            // Play video
+            let videosContent = ``
+            listVideo.forEach((video, index) => {
+                videosContent += `
+                    <video id="video${index}" src="${video}" autoplay muted></video>
+                `
+            })
+
+            memories.innerHTML = videosContent
+
+            // Nếu video thứ 2 hết thì gỡ source của video thứ 2
+            const video2 = document.getElementById('video1')
+            video2.onended = function() {
+                video2.remove()
+            };
+
+            // Nếu video thứ 3 hết thì chuyển tới 
+            const video3 = document.getElementById('video2')
+            video3.onended = async function() {
+                // Gỡ toàn bộ element trong id memories
+                memories.innerHTML = ``
+
+                // Thay bằng ảnh 
+                memories.innerHTML = `
+                    <img src="../assets/note.png" alt="">
+                `
+
+                await sleep(3000)
+                window.location.href = "https://www.facebook.com/klasse.14.imperfect"
+            };
+        }
+
+        // Auto play audio
+        const listAudio = [
+            '../assets/sounds/firework-01.mp3',
+            '../assets/sounds/loihuaboquen.mp3',
+            '../assets/sounds/viyeuanhse.mp3',
+        ]
+
+        let audio1 = new Audio(listAudio[0])
+        const screen = document.getElementById('screen')
+
+        screen.addEventListener('keypress', async (event) => {
+            if (event.code == 'Enter' && !isPress) {
+                isPress = true
+                enterFullScreen(screen)
+                
+                await sleep(2000)
+                fireworks.start()
+
+                await sleep(620)
+                audio1
+                .play()
+
+                setTimeout(async () => {
+                    fireworks.stop()
+                    audio1.pause()
+
+                    // Hidden class name fireworks
+                    container.classList.add('d-none')
+
+                    await sleep(2000)
+                    round2()
+                }, 7000)
+            }
+        })
+    </script>
+</body>
+
+</html>
